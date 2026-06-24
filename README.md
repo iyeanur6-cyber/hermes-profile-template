@@ -86,6 +86,8 @@ python3 scripts/validate_profile.py .
 
 This is the best path when you want reproducible profile creation. The params file becomes the source of truth for the starter profile.
 
+Generated profiles can include explicit template lineage through the `template_source` field in the params file. GitHub only shows native `generated from` or `forked from` linkage when a repository is created through those GitHub flows, so this template records lineage in `distribution.yaml`, `.github/template-source.yml`, and the generated README.
+
 ## Option 4: Install this repo as an interactive profile builder
 
 Install the template itself as a Hermes profile:
