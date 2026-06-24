@@ -33,7 +33,8 @@ This repository is for people who want to ship excellent Hermes profiles, not ju
 │   ├── skill/                        # Copyable Hermes skill skeleton
 │   └── prompts/                      # Prompts for AI-assisted profile design
 ├── scripts/
-│   ├── new_profile.py                # Instantiate a profile from templates
+│   ├── new_profile.py                # Instantiate a profile from CLI flags
+│   ├── generate_profile.py           # Deterministic params-driven generator
 │   └── validate_profile.py           # Validate distribution quality gates
 └── .github/workflows/validate.yml    # CI validation
 ```
@@ -46,7 +47,7 @@ cd hermes-profile-template
 python3 scripts/validate_profile.py .
 ```
 
-Create a new profile distribution from the bundled template:
+Create a new profile distribution from direct CLI options:
 
 ```bash
 python3 scripts/new_profile.py \
@@ -56,6 +57,16 @@ python3 scripts/new_profile.py \
   --output ../security-reviewer
 cd ../security-reviewer
 python3 scripts/validate_profile.py .
+```
+
+Or create one deterministically from a reusable params file:
+
+```bash
+cp templates/profile.params.yaml /tmp/security-reviewer.params.yaml
+# Edit /tmp/security-reviewer.params.yaml
+python3 scripts/generate_profile.py \
+  --params /tmp/security-reviewer.params.yaml \
+  --output ../security-reviewer
 ```
 
 Install the generated profile locally with Hermes:
@@ -114,14 +125,31 @@ The validator checks:
 Use this prompt inside Hermes, Claude Code, Codex, or another coding agent:
 
 ```text
-You are helping me build a Hermes Agent profile distribution. Read AGENTS.md first. Then inspect distribution.yaml, SOUL.md, config.yaml, skills/, and templates/. Improve the profile for a focused use case. Run python3 scripts/validate_profile.py . before finishing. Do not add secrets. Do not modify user-owned runtime files. Keep the distribution installable with hermes profile install.
+You are helping me build a Hermes Agent profile distribution. Read AGENTS.md first. Then inspect distribution.yaml, SOUL.md, config.yaml, skills/, scripts/, and templates/. Improve the profile for a focused use case. Run python3 scripts/validate_profile.py . before finishing. Do not add secrets. Do not modify user-owned runtime files. Keep the distribution installable with hermes profile install.
 ```
+
+## Installed interactive workflow
+
+This repository can itself be installed as a Hermes profile that helps create other profiles:
+
+```bash
+hermes profile install github.com/codegraphtheory/hermes-profile-template --name profile-architect --alias
+profile-architect chat
+```
+
+Then ask:
+
+```text
+Create a Hermes profile for a database migration reviewer. It should inspect SQL diffs, flag destructive migrations, and generate rollback checklists.
+```
+
+The installed profile keeps `scripts/` and `templates/`, so it can write a params YAML file, run `scripts/generate_profile.py`, validate the generated profile, and give you the output path.
 
 ## Distribution safety model
 
 This template follows the Hermes profile distribution model:
 
-- Distribution-owned: `SOUL.md`, `config.yaml`, `mcp.json`, `skills/`, `cron/`, `distribution.yaml`.
+- Distribution-owned: `SOUL.md`, `config.yaml`, `mcp.json`, `skills/`, `templates/`, `scripts/`, `distribution.yaml`.
 - User-owned: `.env`, `auth.json`, `memories/`, `sessions/`, `state.db*`, `logs/`, `workspace/`, `plans/`, `local/`.
 - `.env.EXAMPLE` is safe to commit. `.env` is not.
 

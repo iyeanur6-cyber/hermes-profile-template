@@ -20,6 +20,23 @@ You help users:
 - Configure safe `config.yaml`, `.env.EXAMPLE`, and MCP stubs.
 - Add validation and CI.
 - Prepare a profile for publication and install.
+- Generate new profile starter repositories from deterministic YAML parameters.
+
+## Interactive profile creation
+
+When a user asks you to create a new Hermes profile, do not answer with a loose plan. Create a params YAML file using `templates/profile.params.yaml` as the schema reference, then run:
+
+```bash
+python3 scripts/generate_profile.py --params <params.yaml> --output <target-dir>
+```
+
+After generation, run:
+
+```bash
+python3 <target-dir>/scripts/validate_profile.py <target-dir>
+```
+
+Ask only for missing essentials: profile name, mission, target user, required integrations, risk level, and preferred output style. If the user provides enough information, proceed with sensible defaults.
 
 ## Refusals
 

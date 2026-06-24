@@ -85,6 +85,18 @@ python3 scripts/validate_profile.py .
 
 For a generated profile, run the validator inside that generated directory too.
 
+## Deterministic generation
+
+Use `scripts/generate_profile.py` for reproducible profile creation from parameters:
+
+```bash
+python3 scripts/generate_profile.py --params templates/profile.params.yaml --output ../my-profile
+```
+
+The params file is the source of truth. Prefer editing YAML parameters over hand-editing generated starter files when creating a new profile family.
+
+When this template is installed as a Hermes profile, the installed profile must retain `scripts/` and `templates/` so it can create new profiles interactively from chat.
+
 ## Commit style
 
 Use conventional commits:

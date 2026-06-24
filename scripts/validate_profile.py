@@ -78,6 +78,13 @@ def check_manifest(root: Path, errors: list[str]) -> None:
     env_requires = data.get("env_requires", [])
     if env_requires and not isinstance(env_requires, list):
         fail(errors, "distribution.yaml env_requires must be a list")
+    owned = data.get("distribution_owned", [])
+    if owned and not isinstance(owned, list):
+        fail(errors, "distribution.yaml distribution_owned must be a list")
+    for rel in owned or []:
+        rel_str = str(rel).rstrip("/")
+        if rel_str and not (root / rel_str).exists():
+            fail(errors, f"distribution_owned path does not exist: {rel}")
     example = (root / ".env.EXAMPLE").read_text(encoding="utf-8") if (root / ".env.EXAMPLE").exists() else ""
     for item in env_requires or []:
         if not isinstance(item, dict) or not item.get("name"):

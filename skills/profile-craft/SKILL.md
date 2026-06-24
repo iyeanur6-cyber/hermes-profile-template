@@ -30,9 +30,10 @@ Use this skill when creating or improving a Hermes Agent profile distribution.
 5. Keep `config.yaml` minimal and safe.
 6. Add only skills that are directly needed.
 7. Add `.env.EXAMPLE` for env vars, but never real secrets.
-8. Run `python3 scripts/validate_profile.py .`.
-9. Test local install with `hermes profile install . --name <smoke-name> --yes` when Hermes is available.
-10. Update README with install and usage instructions.
+8. For deterministic starter creation, edit a params YAML file and run `python3 scripts/generate_profile.py --params <params.yaml> --output <target-dir>`.
+9. Run `python3 scripts/validate_profile.py .`.
+10. Test local install with `hermes profile install . --name <smoke-name> --yes` when Hermes is available.
+11. Update README with install and usage instructions.
 
 ## Quality checklist
 

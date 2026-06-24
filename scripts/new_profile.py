@@ -1,27 +1,11 @@
 #!/usr/bin/env python3
-"""Create a new Hermes profile distribution from templates."""
+"""Create a new Hermes profile distribution from command-line parameters."""
 from __future__ import annotations
 
 import argparse
-import re
-import shutil
-import subprocess
 from pathlib import Path
 
-
-def slugify(value: str) -> str:
-    value = value.strip().lower()
-    value = re.sub(r"[^a-z0-9]+", "-", value)
-    value = re.sub(r"-+", "-", value).strip("-")
-    if not value:
-        raise ValueError("name must contain at least one alphanumeric character")
-    return value
-
-
-def render(text: str, context: dict[str, str]) -> str:
-    for key, value in context.items():
-        text = text.replace("{{" + key + "}}", value)
-    return text
+from generate_profile import generate, slugify
 
 
 def main() -> int:
@@ -34,45 +18,24 @@ def main() -> int:
     parser.add_argument("--force", action="store_true", help="Overwrite output directory if it exists")
     args = parser.parse_args()
 
-    root = Path(__file__).resolve().parents[1]
-    template_dir = root / "templates" / "profile"
-    output = Path(args.output).resolve()
     slug = slugify(args.name)
     display_name = args.display_name or args.name.replace("-", " ").title()
-    context = {
-        "profile_slug": slug,
+    params = {
+        "name": slug,
         "display_name": display_name,
         "description": args.description,
         "author": args.author,
+        "version": "0.1.0",
+        "license": "MIT",
+        "model_provider": "openrouter",
+        "model_default": "anthropic/claude-sonnet-4",
+        "toolsets": ["file", "terminal", "skills", "web", "session_search", "clarify"],
+        "env_requires": [],
     }
 
-    if output.exists():
-        if not args.force:
-            print(f"ERROR: output exists. Pass --force to overwrite: {output}")
-            return 1
-        shutil.rmtree(output)
-    output.mkdir(parents=True)
-
-    for template in template_dir.rglob("*.tmpl"):
-        rel = template.relative_to(template_dir)
-        out_rel = Path(str(rel)[:-5])
-        target = output / out_rel
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(render(template.read_text(encoding="utf-8"), context), encoding="utf-8")
-
-    shutil.copytree(root / "scripts", output / "scripts")
-    shutil.copytree(root / "skills", output / "skills")
-    shutil.copytree(root / ".github", output / ".github")
-    shutil.copy2(root / "LICENSE", output / "LICENSE")
-    gitignore = output / ".gitignore"
-    gitignore.write_text(".env\n*.db\n*.db-shm\n*.db-wal\nlogs/\nsessions/\nmemories/\nworkspace/\nplans/\nlocal/\ncache/\n", encoding="utf-8")
-
-    result = subprocess.run(["python3", str(output / "scripts" / "validate_profile.py"), str(output)], text=True, capture_output=True)
-    print(result.stdout, end="")
-    if result.stderr:
-        print(result.stderr, end="")
-    if result.returncode != 0:
-        return result.returncode
+    root = Path(__file__).resolve().parents[1]
+    output = Path(args.output).resolve()
+    generate(params, output, args.force, root)
     print(f"Created Hermes profile distribution: {output}")
     return 0
 
