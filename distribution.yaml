@@ -21,4 +21,5 @@ distribution_owned:
   - distribution.yaml
   - README.md
   - AGENTS.md
+  - CHANGELOG.md
   - .env.EXAMPLE

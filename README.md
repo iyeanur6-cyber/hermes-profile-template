@@ -127,6 +127,20 @@ python3 scripts/validate_profile.py .
 
 The validator checks required files, YAML and JSON syntax, the Hermes distribution manifest, environment variable documentation, skill frontmatter, common secret patterns, broken symlinks, and unresolved template placeholders. Curly-brace template tokens are allowed only under `templates/`; use `[question]` style markers in skill references and rubrics.
 
+## Release discipline
+
+For any change that affects profile behavior, generated files, config, docs, skills, scripts, or distribution metadata:
+
+1. Bump `version` in `distribution.yaml`.
+2. Add a matching `## <version>` entry to `CHANGELOG.md`.
+3. Run the release guard before opening a pull request:
+
+```bash
+python3 scripts/check_release_version.py --base origin/main
+```
+
+The GitHub Actions release guard enforces this on pull requests.
+
 ## Publish a generated profile
 
 From the generated profile directory:
